@@ -5,7 +5,7 @@ SAMPLE_PLAYER_EFFECT::SAMPLE_PLAYER_EFFECT() :
   AudioStream( 1, m_input_queue_array ),
   m_input_queue_array(),
   m_sample_data(nullptr),
-  m_sample_size(0),
+  m_sample_length(0),
   m_speed(1.0f),
   m_read_head(0.0f)
 {
@@ -38,7 +38,7 @@ int16_t SAMPLE_PLAYER_EFFECT::read_sample_linear() const
   else
   {
     int next        = int_part + 1;
-    if( next >= m_sample_size )
+    if( next >= m_sample_length )
     {
       // at the end of the buffer, assume next sample was the same and use that (e.g. no interpolation)
       return curr_samp;
@@ -82,7 +82,7 @@ int16_t SAMPLE_PLAYER_EFFECT::read_sample_cubic() const
   float p2        = m_sample_data[ int_part ];
   
   float p3;
-  if( int_part < m_sample_size - 1)
+  if( int_part < m_sample_length - 1)
   {
     p3            = m_sample_data[ int_part + 1 ];
   }
@@ -108,11 +108,11 @@ void SAMPLE_PLAYER_EFFECT::update()
       for( int i = 0; i < AUDIO_BLOCK_SAMPLES; ++i )
       {
         const int head_int = static_cast<int>(m_read_head);
-        if( head_int < m_sample_size )
+        if( head_int < m_sample_length )
         {
           //block->data[i] = m_sample_data[head_int];
-          block->data[i] = read_sample_cubic();
-          //block->data[i] = read_sample_linear();
+          //block->data[i] = read_sample_cubic();
+          block->data[i] = read_sample_linear();
           m_read_head += m_speed;
         }
         else
@@ -130,18 +130,18 @@ void SAMPLE_PLAYER_EFFECT::update()
   }
 }
 
-void SAMPLE_PLAYER_EFFECT::start( const uint16_t* sample_data, int sample_size, float speed )
+void SAMPLE_PLAYER_EFFECT::play( const uint16_t* sample_data, int sample_length, float speed )
 {
-  m_sample_data = sample_data + 2; // skip the 4 byte header (contains num samples and sample rate) https://github.com/PaulStoffregen/Audio/blob/master/play_memory.cpp
-  m_sample_size = sample_size;
-  m_speed       = speed;
-  m_read_head   = 0.0f;
+  m_sample_data   = sample_data;
+  m_sample_length = sample_length;
+  m_speed         = speed;
+  m_read_head     = 0.0f;
 }
 
 void SAMPLE_PLAYER_EFFECT::stop()
 {
-  m_sample_data  = nullptr;
-  m_sample_size  = 0;
-  m_read_head    = 0.0f;
+  m_sample_data   = nullptr;
+  m_sample_length = 0;
+  m_read_head     = 0.0f;
 }
 
