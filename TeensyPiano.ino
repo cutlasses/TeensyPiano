@@ -44,5 +44,13 @@ void loop()
 
   Serial.println("dong");
 
+  const int processor_usage = AudioProcessorUsage();
+  if( processor_usage > 30 )
+  {
+    Serial.print( "Performance spike: " );
+    Serial.print( processor_usage );
+    Serial.print( "\n" );
+  }
+
   delay( 4000 );
 }

@@ -10,6 +10,9 @@ class SAMPLE_PLAYER_EFFECT : public AudioStream
   float                 m_speed;
   float                 m_read_head;
 
+  int16_t               read_sample_linear() const;
+  int16_t               read_sample_cubic() const;
+
   public:
 
   SAMPLE_PLAYER_EFFECT();
