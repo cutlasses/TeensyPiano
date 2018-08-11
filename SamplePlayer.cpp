@@ -29,7 +29,7 @@ int16_t SAMPLE_PLAYER_EFFECT::read_sample_linear() const
       return curr_samp;
     }
     
-    const float t     = frac_part / 0.5f;
+    const float t     = frac_part * 2.0f;
     
     const int16_t prev_samp = m_sample_data[ prev ];
     
@@ -44,7 +44,7 @@ int16_t SAMPLE_PLAYER_EFFECT::read_sample_linear() const
       return curr_samp;
     }
     
-    const float t     = ( frac_part - 0.5f ) / 0.5f;
+    const float t     = ( frac_part - 0.5f ) * 2.0f;
     
     const int16_t next_samp = m_sample_data[ next ];
     

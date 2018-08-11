@@ -58,10 +58,8 @@ void loop()
   const float speed = 0.5f + ( 1.5f * unary );
   polyphonic_sample_player.play( speed );
 
-  Serial.println("dong");
-
   const int processor_usage = AudioProcessorUsage();
-  if( processor_usage > 30 )
+  if( processor_usage > 95 )
   {
     Serial.print( "Performance spike: " );
     Serial.print( processor_usage );
