@@ -110,9 +110,9 @@ void SAMPLE_PLAYER_EFFECT::update()
         const int head_int = static_cast<int>(m_read_head);
         if( head_int < m_sample_length )
         {
-          //block->data[i] = m_sample_data[head_int];
+          block->data[i] = m_sample_data[head_int];
           //block->data[i] = read_sample_cubic();
-          block->data[i] = read_sample_linear();
+          //block->data[i] = read_sample_linear();
           m_read_head += m_speed;
         }
         else

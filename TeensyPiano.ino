@@ -1,7 +1,7 @@
 #include "SamplePlayer.h"
 #include "AudioSamplePiano_c3_44k.h"
 
-#define AUDIO_BOARD
+//#define AUDIO_BOARD
 
 constexpr int         NUM_VOICES(4);
 
@@ -47,6 +47,7 @@ void setup()
 
   AudioMemory(64);
 
+  analogReference(DEFAULT);
   analogReadRes(ADC_BITS);
   pinMode( NOTE_CV_PIN, INPUT );
   pinMode( TRIG_CV_PIN, INPUT );
@@ -66,6 +67,8 @@ void setup()
   polyphonic_sample_player.add_sample_player( sample_player_3 );
   polyphonic_sample_player.add_sample_player( sample_player_4 );
 
+  Serial.println("Setup");
+
   delay(100);
 }
 
@@ -76,11 +79,11 @@ void loop()
     Serial.println("Trigger");
     g_triggered = false;
 
-    constexpr float SEMI_TONE_COEFFICIENT( SEMI_TONE_RANGE / ADC_MAX_VAL ); // 0v -> 0 semitone, 1V - 12 semitone
+    constexpr float SEMI_TONE_COEFFICIENT( SEMI_TONE_RANGE / static_cast<float>(ADC_MAX_VAL) ); // 0v -> 0 semitone, 1V - 12 semitone
 
-    const int note_CV      = analogRead( NOTE_CV_PIN );
+    const int note_CV       = analogRead( NOTE_CV_PIN );
 
-    const float semitone   = note_CV * SEMI_TONE_COEFFICIENT;
+    const int semitone      = round( note_CV * SEMI_TONE_COEFFICIENT );
 
     Serial.print("note:");
     Serial.print(note_CV);
