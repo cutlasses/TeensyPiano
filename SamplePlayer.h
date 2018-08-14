@@ -1,4 +1,5 @@
 #include <Audio.h>
+#include "Util.h"
 
 /////////////////////////////////////////////////////////
 
@@ -78,6 +79,27 @@ class POLYPHONIC_SAMPLE_PLAYER
     {
       m_next_voice = 0;
     }
+  }
+
+  void                  play_at_pitch( int semitone )
+  {
+    // semitone 0 = 0.5x speed
+    // semitone 1 = 1x speed
+    // semitone 2 = 2x speed
+
+    constexpr float SEMITONE_TO_SPEED_COEFFICIENT( 1.0f / 12.0f );
+
+    float speed;
+    if( semitone < 12 )
+    {
+       speed = lerp( 0.5, 1.0f, semitone * SEMITONE_TO_SPEED_COEFFICIENT );
+    }
+    else
+    {
+      speed = semitone * SEMITONE_TO_SPEED_COEFFICIENT;
+    }
+    
+    play( speed );
   }
   
 };

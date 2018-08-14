@@ -3,9 +3,10 @@
 
 #define AUDIO_BOARD
 
-constexpr int         NUM_VOICES(3);
+constexpr int         NUM_VOICES(4);
 
-constexpr int         ROOT_CV_PIN(8);
+constexpr int         NOTE_CV_PIN(A8);    // CHORD - on panel
+constexpr int         TRIG_CV_PIN(9);     // TRIG - on panel
 constexpr int         ADC_BITS(13);
 constexpr int         ADC_MAX_VAL(8192);
 
@@ -33,13 +34,12 @@ AudioConnection       patch_cord_5( sample_mixer, 0, audio_output, 0 );
 
 POLYPHONIC_SAMPLE_PLAYER<NUM_VOICES>  polyphonic_sample_player( reinterpret_cast<const uint16_t*>(&(AudioSamplePiano_c3_44k[0])) );
 
-/*
-template <typename T>
-T lerp( const T& v1, const T& v2, float t )
+volatile boolean g_triggered = false;
+
+void notify_trigger()
 {
-  return v1 + ( (v2 - v1) * t );
+  g_triggered = true;
 }
-*/
 
 void setup()
 {
@@ -48,6 +48,11 @@ void setup()
   AudioMemory(64);
 
   analogReadRes(ADC_BITS);
+  pinMode( NOTE_CV_PIN, INPUT );
+  pinMode( TRIG_CV_PIN, INPUT );
+
+  // Add an interrupt on the RESET_CV pin to catch rising edges
+  attachInterrupt( digitalPinToInterrupt(TRIG_CV_PIN), notify_trigger, RISING );
 
 #ifdef AUDIO_BOARD
   sgtl5000_1.enable();
@@ -66,21 +71,39 @@ void setup()
 
 void loop()
 {
-  int root_CV = analogRead(ROOT_CV_PIN);
+  if( g_triggered )
+  {
+    Serial.println("Trigger");
+    g_triggered = false;
 
-  
+    constexpr float SEMI_TONE_COEFFICIENT( SEMI_TONE_RANGE / ADC_MAX_VAL ); // 0v -> 0 semitone, 1V - 12 semitone
+
+    const int note_CV      = analogRead( NOTE_CV_PIN );
+
+    const float semitone   = note_CV * SEMI_TONE_COEFFICIENT;
+
+    Serial.print("note:");
+    Serial.print(note_CV);
+    Serial.print(" semitone:");
+    Serial.println(semitone);
+
+    polyphonic_sample_player.play_at_pitch( semitone );
+  }
+
+  /*
   const float unary = random(100) / 100.0f;
   //const float speed = lerp( 0.5, 2.0f, unary );
   const float speed = 0.5f + ( 1.5f * unary );
   polyphonic_sample_player.play( speed );
 
   const int processor_usage = AudioProcessorUsage();
-  if( processor_usage > 85 )
+  if( processor_usage > 50 )
   {
     Serial.print( "Performance spike: " );
     Serial.print( processor_usage );
     Serial.print( "\n" );
   }
 
-  delay( random(2000) );
+  delay( random(1000) );
+  */
 }
