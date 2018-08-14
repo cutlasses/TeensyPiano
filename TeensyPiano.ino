@@ -5,7 +5,7 @@
 
 constexpr int         NUM_VOICES(4);
 
-constexpr int         NOTE_CV_PIN(A8);    // CHORD - on panel
+constexpr int         NOTE_CV_PIN(A8);    // ROOT - on panel
 constexpr int         TRIG_CV_PIN(9);     // TRIG - on panel
 constexpr int         ADC_BITS(13);
 constexpr int         ADC_MAX_VAL(8192);
