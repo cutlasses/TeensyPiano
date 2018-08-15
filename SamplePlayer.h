@@ -1,4 +1,5 @@
 #include <Audio.h>
+#include "FixedPoint.h"
 #include "Util.h"
 
 /////////////////////////////////////////////////////////
@@ -10,11 +11,12 @@ class SAMPLE_PLAYER_EFFECT : public AudioStream
   const uint16_t*       m_sample_data;
   int                   m_sample_length;
 
-  float                 m_speed;
-  float                 m_read_head;
+  FIXED_POINT           m_speed;
+  FIXED_POINT           m_read_head;
 
-  int16_t               read_sample_linear() const;
-  int16_t               read_sample_cubic() const;
+  //int16_t               read_sample_linear() const;
+  int16_t               read_sample_linear_fp() const;
+  //int16_t               read_sample_cubic() const;
 
   public:
 

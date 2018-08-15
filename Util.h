@@ -52,7 +52,7 @@ T min_val( const T& v1, const T& v2 )
 /////////////////////////////////////////////////////
 
 template <typename T>
-T lerp( const T& v1, const T& v2, float t )
+constexpr T lerp( const T& v1, const T& v2, const T& t )
 {
   return v1 + ( (v2 - v1) * t );
 }

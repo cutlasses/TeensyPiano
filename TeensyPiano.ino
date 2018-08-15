@@ -4,7 +4,7 @@
 #define AUDIO_BOARD
 #define SHOW_PERF
 
-constexpr int         NUM_VOICES(4);
+constexpr int         NUM_VOICES(8);
 
 constexpr int         NOTE_CV_PIN(A8);    // ROOT - on panel
 constexpr int         TRIG_CV_PIN(9);     // TRIG - on panel
