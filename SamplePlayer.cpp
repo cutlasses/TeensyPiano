@@ -1,6 +1,10 @@
 #include "Util.h"
 #include "SamplePlayer.h"
 
+constexpr FIXED_POINT FIXED_POINT_ZERO( 0.0f );
+constexpr FIXED_POINT FIXED_POINT_HALF( 0.5f );
+constexpr FIXED_POINT FIXED_POINT_TWO( 2.0f );
+
 SAMPLE_PLAYER_EFFECT::SAMPLE_PLAYER_EFFECT() :
   AudioStream( 1, m_input_queue_array ),
   m_input_queue_array(),
@@ -62,11 +66,8 @@ int16_t SAMPLE_PLAYER_EFFECT::read_sample_linear_fp() const
   const FIXED_POINT frac_part( m_read_head - int_part );
   
   const int16_t curr_samp   = m_sample_data[ int_part ];
-
-  constexpr FIXED_POINT FP_HALF( 0.5f );
-  constexpr FIXED_POINT FP_TWO( 2.0f );
   
-  if( frac_part < FP_HALF )
+  if( frac_part < FIXED_POINT_HALF )
   {
     int prev        = int_part - 1;
     if( prev < 0 )
@@ -75,7 +76,7 @@ int16_t SAMPLE_PLAYER_EFFECT::read_sample_linear_fp() const
       return curr_samp;
     }
     
-    const FIXED_POINT t     = frac_part * FP_TWO;
+    const FIXED_POINT t     = frac_part * FIXED_POINT_TWO;
     
     const int16_t prev_samp = m_sample_data[ prev ];
 
@@ -92,7 +93,7 @@ int16_t SAMPLE_PLAYER_EFFECT::read_sample_linear_fp() const
       return curr_samp;
     }
     
-    const FIXED_POINT t     = ( frac_part - FP_HALF ) * FP_TWO;
+    const FIXED_POINT t     = ( frac_part - FIXED_POINT_HALF ) * FIXED_POINT_TWO;
     
     const int16_t next_samp = m_sample_data[ next ];
     
@@ -196,17 +197,16 @@ void SAMPLE_PLAYER_EFFECT::update()
 
 void SAMPLE_PLAYER_EFFECT::play( const uint16_t* sample_data, int sample_length, float speed )
 {
-  //constexpr FIXED_POINT FP_ZERO( 0.0f );
   m_sample_data   = sample_data;
   m_sample_length = sample_length;
   m_speed         = FIXED_POINT(speed);
-  m_read_head     = FIXED_POINT(0.0f);
+  m_read_head     = FIXED_POINT_ZERO;
 }
 
 void SAMPLE_PLAYER_EFFECT::stop()
 {
   m_sample_data   = nullptr;
   m_sample_length = 0;
-  m_read_head     = FIXED_POINT(0.0f);
+  m_read_head     = FIXED_POINT_ZERO;
 }
 
