@@ -12,7 +12,6 @@ constexpr int         ADC_BITS(13);
 constexpr int         ADC_MAX_VAL(8192);
 
 constexpr float       SAMPLE_MIX( 0.25f );
-constexpr int         SEMI_TONE_RANGE( 3.3f * 12 );
 
 SAMPLE_PLAYER_EFFECT  sample_player_1;
 SAMPLE_PLAYER_EFFECT  sample_player_2;
@@ -74,7 +73,7 @@ void setup()
     sample_mixer.gain( i, SAMPLE_MIX );
   }
 
-  Serial.println("Setup");
+  //Serial.println("Setup");
 
   delay(100);
 }
@@ -129,12 +128,17 @@ void loop()
   static int next_play_time = 0;
   if( time > next_play_time )
   {
+    static int semitone = 0;
+    polyphonic_sample_player.play_at_quantised_pitch( semitone );
+
+    semitone = ( semitone + 1 ) % SEMI_TONE_RANGE;
+    next_play_time = time + 2000;
+    /*
     const int semitone = random_ranged( 0, SEMI_TONE_RANGE );
     polyphonic_sample_player.play_at_quantised_pitch( semitone );
 
-    Serial.print("Play at ");
-    Serial.println( semitone );
     next_play_time = time + random( 3000 );
+    */
   }
   #endif // AUDIO_BOARD
 }

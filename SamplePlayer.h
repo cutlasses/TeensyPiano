@@ -4,6 +4,8 @@
 
 /////////////////////////////////////////////////////////
 
+constexpr int           SEMI_TONE_RANGE( 3.3f * 12 );
+
 class SAMPLE_PLAYER_EFFECT : public AudioStream
 {
   audio_block_t*        m_input_queue_array[1];
@@ -89,17 +91,8 @@ class POLYPHONIC_SAMPLE_PLAYER
     // semitone 1 = 1x speed
     // semitone 2 = 2x speed
 
-    constexpr float SEMITONE_TO_SPEED_COEFFICIENT( 1.0f / 12.0f );
-
-    float speed;
-    if( semitone < 12 )
-    {
-       speed = lerp( 0.5, 1.0f, semitone * SEMITONE_TO_SPEED_COEFFICIENT );
-    }
-    else
-    {
-      speed = semitone * SEMITONE_TO_SPEED_COEFFICIENT;
-    }
+    const int offset_semitone = semitone - 12;
+    const float speed = powf( 2.0f, offset_semitone / 12.0f );
 
     Serial.print( " Speed:");
     Serial.println( speed );
@@ -108,22 +101,16 @@ class POLYPHONIC_SAMPLE_PLAYER
 
   void                play_at_quantised_pitch( int semitone )
   {
-    constexpr int c_key[7] = {0,2,4,5,7,9,11};
+    constexpr int8_t c_key[7] = {0,2,4,5,7,9,11};
 
-    const int semitone_in_octave = semitone % 12;
-    const int semitone_offset = ( semitone / 12 ) * 12;
-    Serial.print( "Semitone:");
-    Serial.print( semitone );
-    Serial.print( " Semitone in octave:");
-    Serial.print( semitone_in_octave );
-    Serial.print( " Semitone offset:");
-    Serial.print( semitone_offset );
+    const int8_t semitone_in_octave  = semitone % 12;
+    const int8_t semitone_offset     = ( semitone / 12 ) * semitone;
 
     for( int st = 0; st < 7; ++st )
     {
       if( c_key[st] >= semitone_in_octave )
       {
-        const int semitone_to_play = c_key[st]; //+ semitone_offset;
+        const int8_t semitone_to_play = c_key[st] + semitone_offset;
         Serial.print( " Semitone to play:");
         Serial.println( semitone_to_play );
         play_at_pitch( semitone_to_play );
