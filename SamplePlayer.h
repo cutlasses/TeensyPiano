@@ -100,10 +100,37 @@ class POLYPHONIC_SAMPLE_PLAYER
     {
       speed = semitone * SEMITONE_TO_SPEED_COEFFICIENT;
     }
-    
+
+    Serial.print( " Speed:");
+    Serial.println( speed );
     play( speed );
   }
-  
+
+  void                play_at_quantised_pitch( int semitone )
+  {
+    constexpr int c_key[7] = {0,2,4,5,7,9,11};
+
+    const int semitone_in_octave = semitone % 12;
+    const int semitone_offset = ( semitone / 12 ) * 12;
+    Serial.print( "Semitone:");
+    Serial.print( semitone );
+    Serial.print( " Semitone in octave:");
+    Serial.print( semitone_in_octave );
+    Serial.print( " Semitone offset:");
+    Serial.print( semitone_offset );
+
+    for( int st = 0; st < 7; ++st )
+    {
+      if( c_key[st] >= semitone_in_octave )
+      {
+        const int semitone_to_play = c_key[st]; //+ semitone_offset;
+        Serial.print( " Semitone to play:");
+        Serial.println( semitone_to_play );
+        play_at_pitch( semitone_to_play );
+        return;
+      }
+    }
+  }
 };
 
 /////////////////////////////////////////////////////////

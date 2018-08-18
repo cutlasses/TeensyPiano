@@ -11,6 +11,7 @@ constexpr int         TRIG_CV_PIN(9);     // TRIG - on panel
 constexpr int         ADC_BITS(13);
 constexpr int         ADC_MAX_VAL(8192);
 
+constexpr float       SAMPLE_MIX( 0.25f );
 constexpr int         SEMI_TONE_RANGE( 3.3f * 12 );
 
 SAMPLE_PLAYER_EFFECT  sample_player_1;
@@ -49,7 +50,7 @@ void setup()
 
 #ifdef AUDIO_BOARD
   sgtl5000_1.enable();
-  sgtl5000_1.volume(0.5f);
+  sgtl5000_1.volume(0.85f);
 
   sgtl5000_1.lineOutLevel( 8 );  // 3.16volts p-p
 #else // !AUDIO_BOARD
@@ -67,6 +68,11 @@ void setup()
   polyphonic_sample_player.add_sample_player( sample_player_2 );
   polyphonic_sample_player.add_sample_player( sample_player_3 );
   polyphonic_sample_player.add_sample_player( sample_player_4 );
+
+  for( int i = 0; i < 4; ++i )
+  {
+    sample_mixer.gain( i, SAMPLE_MIX );
+  }
 
   Serial.println("Setup");
 
@@ -123,13 +129,12 @@ void loop()
   static int next_play_time = 0;
   if( time > next_play_time )
   {
-    const float unary = random(100) / 100.0f;
-    const float speed = 0.5f + ( 1.5f * unary );
-    polyphonic_sample_player.play( speed );
+    const int semitone = random_ranged( 0, SEMI_TONE_RANGE );
+    polyphonic_sample_player.play_at_quantised_pitch( semitone );
 
     Serial.print("Play at ");
-    Serial.println( speed );
-    next_play_time = time + random( 1000 );
+    Serial.println( semitone );
+    next_play_time = time + random( 3000 );
   }
   #endif // AUDIO_BOARD
 }
