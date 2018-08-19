@@ -18,6 +18,8 @@ SAMPLE_PLAYER_EFFECT  sample_player_2;
 SAMPLE_PLAYER_EFFECT  sample_player_3;
 SAMPLE_PLAYER_EFFECT  sample_player_4;
 AudioMixer4           sample_mixer;
+AudioEffectFreeverb   freeverb;
+AudioFilterStateVariable filter;
 
 #ifdef AUDIO_BOARD
 AudioOutputI2S        audio_output;
@@ -30,7 +32,10 @@ AudioConnection       patch_cord_1( sample_player_1, 0, sample_mixer, 0 );
 AudioConnection       patch_cord_2( sample_player_2, 0, sample_mixer, 1 );
 AudioConnection       patch_cord_3( sample_player_3, 0, sample_mixer, 2 );
 AudioConnection       patch_cord_4( sample_player_4, 0, sample_mixer, 3 );
-AudioConnection       patch_cord_5( sample_mixer, 0, audio_output, 0 );
+//AudioConnection       patch_cord_7( sample_mixer, 0, audio_output, 0 );
+AudioConnection       patch_cord_5( sample_mixer, 0, freeverb, 0 );
+AudioConnection       patch_cord_6( freeverb, 0, filter, 0 );
+AudioConnection       patch_cord_7( filter, 0, audio_output, 0 );
 
 POLYPHONIC_SAMPLE_PLAYER<NUM_VOICES>  polyphonic_sample_player( reinterpret_cast<const uint16_t*>(&(AudioSamplePiano_c3_44k[0])) );
 
@@ -74,6 +79,12 @@ void setup()
   }
 
   //Serial.println("Setup");
+
+  freeverb.roomsize( 0.75f );
+  freeverb.damping( 0.5f );
+
+  // remove reverb noise
+  filter.frequency( 1500.0f );
 
   delay(100);
 }
