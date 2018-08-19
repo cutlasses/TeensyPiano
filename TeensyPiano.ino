@@ -1,8 +1,9 @@
 #include "SamplePlayer.h"
 #include "AudioSamplePiano_c3_44k.h"
 
-#define AUDIO_BOARD
+//#define AUDIO_BOARD
 #define SHOW_PERF
+#define TEST_BOARD
 
 constexpr int         NUM_VOICES(4);
 
@@ -134,7 +135,7 @@ void loop()
   }
 #endif // SHOW_PERF
 
-#ifdef AUDIO_BOARD
+#ifdef TEST_BOARD
   int time = millis();
   static int next_play_time = 0;
   if( time > next_play_time )
@@ -151,5 +152,5 @@ void loop()
     next_play_time = time + random( 3000 );
     */
   }
-  #endif // AUDIO_BOARD
+  #endif // TEST_BOARD
 }
