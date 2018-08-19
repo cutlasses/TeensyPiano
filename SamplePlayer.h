@@ -18,7 +18,7 @@ class SAMPLE_PLAYER_EFFECT : public AudioStream
 
   //int16_t               read_sample_linear() const;
   int16_t               read_sample_linear_fp() const;
-  //int16_t               read_sample_cubic() const;
+  int16_t               read_sample_cubic_fp() const;
 
   public:
 
@@ -91,7 +91,8 @@ class POLYPHONIC_SAMPLE_PLAYER
     // semitone 1 = 1x speed
     // semitone 2 = 2x speed
 
-    const int offset_semitone = semitone - 12;
+    constexpr int semitone_offset = 12;
+    const int offset_semitone = semitone - semitone_offset;
     const float speed = powf( 2.0f, offset_semitone / 12.0f );
 
     Serial.print( " Speed:");
@@ -104,8 +105,15 @@ class POLYPHONIC_SAMPLE_PLAYER
     constexpr int8_t c_key[7] = {0,2,4,5,7,9,11};
 
     const int8_t semitone_in_octave  = semitone % 12;
-    const int8_t semitone_offset     = ( semitone / 12 ) * semitone;
+    const int8_t semitone_offset     = ( semitone / 12 ) * 12;
 
+    Serial.print( "Semitone:" );
+    Serial.print( semitone );
+    Serial.print( " semitone_in_octave:" );
+    Serial.print( semitone_in_octave );    
+    Serial.print( " semitone_offset:" );
+    Serial.print( semitone_offset );  
+    
     for( int st = 0; st < 7; ++st )
     {
       if( c_key[st] >= semitone_in_octave )

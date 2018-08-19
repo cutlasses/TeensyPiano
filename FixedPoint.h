@@ -18,16 +18,28 @@ class FIXED_POINT
 
   public:
 
+    FIXED_POINT() = default;
     constexpr FIXED_POINT( const FIXED_POINT& rhs ) = default;
     constexpr FIXED_POINT( FIXED_POINT&& rhs ) = default;
     constexpr FIXED_POINT& operator=( const FIXED_POINT& rhs ) = default;
-    
+
+    constexpr FIXED_POINT& operator=( int16_t rhs )
+    {
+      m_fp_value = (rhs << SHIFT_BITS);
+      return *this;
+    }
+
     explicit constexpr inline FIXED_POINT( float value ) :
       m_fp_value( static_cast<int32_t>( (value * SCALE_FACTOR_F) + 0.5f ) )
     {
     }
 
     explicit constexpr inline FIXED_POINT( int16_t value ) :
+      m_fp_value( value << SHIFT_BITS )
+    {
+    }
+
+    explicit constexpr inline FIXED_POINT( uint16_t value ) :
       m_fp_value( value << SHIFT_BITS )
     {
     }
@@ -40,6 +52,11 @@ class FIXED_POINT
     inline constexpr int16_t trunc_to_int16() const
     {
       return static_cast<int16_t>(m_fp_value >> SHIFT_BITS);
+    }
+
+    inline constexpr uint16_t trunc_to_uint16() const
+    {
+      return static_cast<uint16_t>(m_fp_value >> SHIFT_BITS);
     }
 
     inline constexpr int32_t trunc_to_int32() const
@@ -137,8 +154,8 @@ class FIXED_POINT
       return FIXED_POINT( lhs ) * rhs;
     }
 
-    inline friend constexpr FIXED_POINT operator - ( const FIXED_POINT& lhs, int16_t rhs )
+    inline friend constexpr FIXED_POINT operator - ( const FIXED_POINT& lhs, int32_t rhs )
     {
-      return lhs - FIXED_POINT( rhs );
+      return lhs - FIXED_POINT( rhs << SHIFT_BITS );
     }
 };

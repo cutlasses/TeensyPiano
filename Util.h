@@ -58,10 +58,11 @@ constexpr T lerp( const T& v1, const T& v2, const T& t )
 }
 
 // from http://polymathprogrammer.com/2008/09/29/linear-and-cubic-interpolation/
-inline float cubic_interpolation( float p0, float p1, float p2, float p3, float t )
+template <typename T>
+inline constexpr T cubic_interpolation( T p0, T p1, T p2, T p3, T t )
 {
-  const float one_minus_t = 1.0f - t;
-  return ( one_minus_t * one_minus_t * one_minus_t * p0 ) + ( 3 * one_minus_t * one_minus_t * t * p1 ) + ( 3 * one_minus_t * t * t * p2 ) + ( t * t * t * p3 );
+  const T one_minus_t = T(1.0f) - t;
+  return ( one_minus_t * one_minus_t * one_minus_t * p0 ) + ( T(3.0f) * one_minus_t * one_minus_t * t * p1 ) + ( T(3.0f) * one_minus_t * t * t * p2 ) + ( t * t * t * p3 );
 }
 
 /////////////////////////////////////////////////////
