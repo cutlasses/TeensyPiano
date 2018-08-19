@@ -103,21 +103,6 @@ int16_t SAMPLE_PLAYER_EFFECT::read_sample_cubic_fp() const
   const FIXED_POINT t         = lerp<FIXED_POINT>( FIXED_POINT(0.33333f), FIXED_POINT(0.66666f), frac_part );
   
   const FIXED_POINT sampf     = cubic_interpolation<FIXED_POINT>( p0, p1, p2, p3, t );
-
-  Serial.print("head:");
-  Serial.print(m_read_head.to_float());
-  Serial.print("int:");
-  Serial.print(m_read_head.trunc_to_int32());
-  Serial.print("frac:");
-  Serial.println(frac_part.to_float());
-  /*
-  Serial.print(" s:");
-  Serial.print(m_sample_data[ int_part ]);
-  Serial.print(" t:");
-  Serial.print(t.to_float());
-  Serial.print(" c:");
-  Serial.println(sampf.trunc_to_int16());
-  */
   
   return sampf.trunc_to_int16();
 }
@@ -142,9 +127,9 @@ void SAMPLE_PLAYER_EFFECT::update()
           //Serial.print("head int:");
           //Serial.println(head_int);
           //block->data[i] = m_sample_data[head_int];
-          //block->data[i] = read_sample_cubic_fp();
+          block->data[i] = read_sample_cubic_fp();
           //block->data[i] = read_sample_linear();
-          block->data[i] = read_sample_linear_fp();
+          //block->data[i] = read_sample_linear_fp();
           m_read_head += m_speed;
 
           //Serial.print("Speed:");

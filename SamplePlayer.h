@@ -95,8 +95,6 @@ class POLYPHONIC_SAMPLE_PLAYER
     const int offset_semitone = semitone - semitone_offset;
     const float speed = powf( 2.0f, offset_semitone / 12.0f );
 
-    Serial.print( " Speed:");
-    Serial.println( speed );
     play( speed );
   }
 
@@ -107,20 +105,11 @@ class POLYPHONIC_SAMPLE_PLAYER
     const int8_t semitone_in_octave  = semitone % 12;
     const int8_t semitone_offset     = ( semitone / 12 ) * 12;
 
-    Serial.print( "Semitone:" );
-    Serial.print( semitone );
-    Serial.print( " semitone_in_octave:" );
-    Serial.print( semitone_in_octave );    
-    Serial.print( " semitone_offset:" );
-    Serial.print( semitone_offset );  
-    
     for( int st = 0; st < 7; ++st )
     {
       if( c_key[st] >= semitone_in_octave )
       {
         const int8_t semitone_to_play = c_key[st] + semitone_offset;
-        Serial.print( " Semitone to play:");
-        Serial.println( semitone_to_play );
         play_at_pitch( semitone_to_play );
         return;
       }
