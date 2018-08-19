@@ -12,27 +12,28 @@ constexpr int         NOTE_CV_PIN(A8);    // ROOT - on panel
 constexpr int         TRIG_CV_PIN(9);     // TRIG - on panel
 constexpr int         TRIG_BUTTON_PIN(8);
 constexpr int         RESET_LED_PIN(11);
-constexpr int         CHORD_POT_PIN(9);
+constexpr int         CHORD_POT_PIN(A9);
 constexpr int         ROOT_POT_PIN(A7);
 constexpr int         ADC_BITS(13);
 constexpr int         ADC_MAX_VAL(8192);
 
 constexpr int         TRIG_FLASH_TIME_MS(100);
 
-constexpr float       SAMPLE_MIX( 0.25f );
+constexpr float       SAMPLE_MIX( 1.0f / NUM_VOICES );
 
 LED                   trig_led(RESET_LED_PIN, false);
 BUTTON                trig_button(TRIG_BUTTON_PIN, false);
 DIAL                  root_dial(ROOT_POT_PIN);
 DIAL                  chord_dial(CHORD_POT_PIN);
 
-SAMPLE_PLAYER_EFFECT  sample_player_1;
-SAMPLE_PLAYER_EFFECT  sample_player_2;
-SAMPLE_PLAYER_EFFECT  sample_player_3;
-SAMPLE_PLAYER_EFFECT  sample_player_4;
-AudioMixer4           sample_mixer;
-AudioEffectFreeverb   freeverb;
-AudioFilterStateVariable filter;
+SAMPLE_PLAYER_EFFECT      sample_player_1;
+SAMPLE_PLAYER_EFFECT      sample_player_2;
+SAMPLE_PLAYER_EFFECT      sample_player_3;
+SAMPLE_PLAYER_EFFECT      sample_player_4;
+AudioMixer4               sample_mixer;
+AudioEffectFreeverb       freeverb;
+AudioMixer4               reverb_mixer;
+//AudioFilterStateVariable  filter;
 
 #ifdef AUDIO_BOARD
 AudioOutputI2S        audio_output;
@@ -46,9 +47,10 @@ AudioConnection       patch_cord_2( sample_player_2, 0, sample_mixer, 1 );
 AudioConnection       patch_cord_3( sample_player_3, 0, sample_mixer, 2 );
 AudioConnection       patch_cord_4( sample_player_4, 0, sample_mixer, 3 );
 //AudioConnection       patch_cord_7( sample_mixer, 0, audio_output, 0 );
-AudioConnection       patch_cord_5( sample_mixer, 0, freeverb, 0 );
-AudioConnection       patch_cord_6( freeverb, 0, filter, 0 );
-AudioConnection       patch_cord_7( filter, 0, audio_output, 0 );
+AudioConnection       patch_cord_5( sample_mixer, 0, reverb_mixer, 0 );
+AudioConnection       patch_cord_6( sample_mixer, 0, freeverb, 0 );
+AudioConnection       patch_cord_7( freeverb, 0, reverb_mixer, 1 );
+AudioConnection       patch_cord_8( reverb_mixer, 0, audio_output, 0 );
 
 POLYPHONIC_SAMPLE_PLAYER<NUM_VOICES>  polyphonic_sample_player( reinterpret_cast<const uint16_t*>(&(AudioSamplePiano_c3_44k[0])) );
 
@@ -93,11 +95,11 @@ void setup()
 
   //Serial.println("Setup");
 
-  freeverb.roomsize( 0.75f );
+  freeverb.roomsize( 0.95f );
   freeverb.damping( 0.5f );
 
-  // remove reverb noise
-  filter.frequency( 1500.0f );
+  reverb_mixer.gain( 0, 1.0f );
+  reverb_mixer.gain( 1, 0.0f );
 
   trig_led.setup();
   trig_button.setup();
@@ -115,7 +117,8 @@ void loop()
   if( root_dial.update() )
   {
     const float v = root_dial.value( static_cast<float>(ADC_MAX_VAL) );
-    freeverb.roomsize( v );
+    //freeverb.roomsize( v );
+    reverb_mixer.gain( 1, v );
 
     //Serial.print("Root:");
     //Serial.println(v);
