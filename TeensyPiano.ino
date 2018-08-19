@@ -1,18 +1,30 @@
+#include "Interface.h"
 #include "SamplePlayer.h"
 #include "AudioSamplePiano_c3_44k.h"
 
 //#define AUDIO_BOARD
-#define SHOW_PERF
-#define TEST_BOARD
+//#define SHOW_PERF
+//#define TEST_BOARD
 
 constexpr int         NUM_VOICES(4);
 
 constexpr int         NOTE_CV_PIN(A8);    // ROOT - on panel
 constexpr int         TRIG_CV_PIN(9);     // TRIG - on panel
+constexpr int         TRIG_BUTTON_PIN(8);
+constexpr int         RESET_LED_PIN(11);
+constexpr int         CHORD_POT_PIN(9);
+constexpr int         ROOT_POT_PIN(A7);
 constexpr int         ADC_BITS(13);
 constexpr int         ADC_MAX_VAL(8192);
 
+constexpr int         TRIG_FLASH_TIME_MS(100);
+
 constexpr float       SAMPLE_MIX( 0.25f );
+
+LED                   trig_led(RESET_LED_PIN, false);
+BUTTON                trig_button(TRIG_BUTTON_PIN, false);
+DIAL                  root_dial(ROOT_POT_PIN);
+DIAL                  chord_dial(CHORD_POT_PIN);
 
 SAMPLE_PLAYER_EFFECT  sample_player_1;
 SAMPLE_PLAYER_EFFECT  sample_player_2;
@@ -87,15 +99,44 @@ void setup()
   // remove reverb noise
   filter.frequency( 1500.0f );
 
+  trig_led.setup();
+  trig_button.setup();
+
   delay(100);
 }
 
 void loop()
 {
+  const int time = millis();
+  
+  trig_led.update( time );
+  trig_button.update( time );
+  
+  if( root_dial.update() )
+  {
+    const float v = root_dial.value( static_cast<float>(ADC_MAX_VAL) );
+    freeverb.roomsize( v );
+
+    //Serial.print("Root:");
+    //Serial.println(v);
+  }
+  if( chord_dial.update() )
+  {
+    const float v = chord_dial.value( static_cast<float>(ADC_MAX_VAL) );
+    freeverb.damping( v );
+
+    //Serial.print("Chord:");
+    //Serial.println(v);
+  }
+
+  if( trig_button.single_click() )
+  {
+    g_triggered = true;
+  }
+  
 #ifndef AUDIO_BOARD
   if( g_triggered )
   {
-    Serial.println("Trigger");
     g_triggered = false;
 
     constexpr float SEMI_TONE_COEFFICIENT( SEMI_TONE_RANGE / static_cast<float>(ADC_MAX_VAL) ); // 0v -> 0 semitone, 1V - 12 semitone
@@ -104,12 +145,16 @@ void loop()
 
     const int semitone      = round( note_CV * SEMI_TONE_COEFFICIENT );
 
+    trig_led.flash_on( time, TRIG_FLASH_TIME_MS );
+
+    /*
     Serial.print("note:");
     Serial.print(note_CV);
     Serial.print(" semitone:");
     Serial.println(semitone);
+    */
 
-    polyphonic_sample_player.play_at_pitch( semitone );
+    polyphonic_sample_player.play_at_quantised_pitch( semitone );
   }
 #endif // !AUDIO_BOARD
 
@@ -136,7 +181,6 @@ void loop()
 #endif // SHOW_PERF
 
 #ifdef TEST_BOARD
-  int time = millis();
   static int next_play_time = 0;
   if( time > next_play_time )
   {
@@ -145,6 +189,8 @@ void loop()
 
     semitone = ( semitone + 1 ) % SEMI_TONE_RANGE;
     next_play_time = time + 2000;
+
+    trig_led.flash_on( time, TRIG_FLASH_TIME_MS );
     /*
     const int semitone = random_ranged( 0, SEMI_TONE_RANGE );
     polyphonic_sample_player.play_at_quantised_pitch( semitone );

@@ -1,31 +1,63 @@
-
+#include <Wire.h>
+#include <Audio.h>
 #include "Interface.h"
 
 #define BOUNCE_TIME         10
 
-DIAL::DIAL( int data_pin ) :
-  m_data_pin( data_pin ),
-  m_current_value( 0 )
-{
+//////////////////////////////////////
 
+DIAL_BASE::DIAL_BASE( bool invert ) :
+  m_current_value( 0 ),
+  m_invert( invert )
+{
+  
 }
 
-bool DIAL::update( ADC& adc )
+DIAL_BASE::~DIAL_BASE()
 {
-  const int new_value = adc.analogRead( m_data_pin, ADC_1 );
   
-  if( new_value != m_current_value )
+}
+
+bool DIAL_BASE::set_current_value( int new_value )
+{
+  constexpr int threshold( 16 );
+  //if( new_value != m_current_value )
+  const int diff = new_value - m_current_value;
+  if( ( diff > 0 && diff > threshold ) || ( diff < 0 && diff < -threshold ) )
   {
     m_current_value = new_value;
     return true;
   }
 
-  return false;
+  return false; 
 }
 
-float DIAL::value() const
+float DIAL_BASE::value( float max_value ) const
 {
-  return m_current_value / 65536.0f;
+  const float vf = m_current_value / max_value;
+
+  if( m_invert )
+  {
+    return 1.0f - vf;
+  }
+  else
+  {
+    return vf;
+  }
+}
+
+DIAL::DIAL( int data_pin ) :
+  DIAL_BASE( false ),
+  m_data_pin( data_pin )
+{
+
+}
+
+bool DIAL::update()
+{
+  const int new_value = analogRead( m_data_pin );
+
+  return set_current_value( new_value );
 }
 
 //////////////////////////////////////
@@ -73,7 +105,7 @@ void BUTTON::setup()
   pinMode( m_data_pin, INPUT_PULLUP );
 }
 
-void BUTTON::update( int32_t time_ms )
+void BUTTON::update( uint32_t time_ms )
 { 
   m_bounce.update();
 
@@ -114,15 +146,19 @@ void BUTTON::update( int32_t time_ms )
 
 LED::LED() :
   m_data_pin( 0 ),
-  m_brightness( 255 ),
-  m_is_active( false )
+  m_is_active( false ),
+  m_flash_active( false ),
+  m_analog( false ),
+  m_flash_off_time_ms( 0 )
 {
 }
 
-LED::LED( int data_pin ) :
+LED::LED( int data_pin, bool analog ) :
   m_data_pin( data_pin ),
-  m_brightness( 255 ),
-  m_is_active( false )
+  m_is_active( false ),
+  m_flash_active( false ),
+  m_analog( analog ),
+  m_flash_off_time_ms( 0 )
 {
 }
 
@@ -131,9 +167,17 @@ void LED::set_active( bool active )
   m_is_active = active;
 }
 
+void LED::flash_on( uint32_t time_ms, uint32_t flash_duration_ms )
+{
+  m_flash_active      = true;
+  m_flash_off_time_ms = time_ms + flash_duration_ms;
+
+  m_is_active         = true;
+}
+
 void LED::set_brightness( float brightness )
 {
-  m_brightness = round_to_int( brightness * 255.0f );  
+  m_brightness = brightness * 255.0f;  
 }
 
 void LED::setup()
@@ -141,15 +185,85 @@ void LED::setup()
   pinMode( m_data_pin, OUTPUT );
 }
 
-void LED::update()
-{
-  if( m_is_active )
+void LED::update( uint32_t time_ms )
+{  
+  if( m_is_active && m_flash_active && time_ms > m_flash_off_time_ms )
   {
-    analogWrite( m_data_pin, m_brightness );
+    m_is_active     = false;
+    m_flash_active  = false;
+  }
+
+  if( m_analog )
+  {
+    if( m_is_active )
+    {   
+      analogWrite( m_data_pin, m_brightness );
+    }
+    else
+    {
+      analogWrite( m_data_pin, 0 );
+    }
   }
   else
   {
-    analogWrite( m_data_pin, 0 );
+    if( m_is_active )
+    {   
+      digitalWrite( m_data_pin, HIGH );
+    }
+    else
+    {
+      digitalWrite( m_data_pin, LOW );
+    }
+  }
+}
+
+//////////////////////////////////////
+
+PUSH_AND_TURN::PUSH_AND_TURN( const DIAL& dial, const BUTTON& button, float initial_secondary_value ) :
+  m_dial( dial ),
+  m_button( button ),
+  m_primary_value( 0.0f ),
+  m_secondary_value( initial_secondary_value ),
+  m_push_and_turning( false )
+{
+  
+}
+
+float PUSH_AND_TURN::primary_value() const
+{
+  return m_primary_value;
+}
+
+float PUSH_AND_TURN::secondary_value() const
+{
+  return m_secondary_value;
+}
+
+void PUSH_AND_TURN::update()
+{
+  if( m_push_and_turning )
+  {
+    // keep going until button is release
+    m_push_and_turning = m_button.down_time_ms() > 0; 
+  }
+  else
+  {
+    // check for start of push and turn
+    if( m_button.down_time_ms() > PUSH_AND_TURN_DOWN_TIME_MS &&
+        abs( m_dial.value() - m_secondary_value ) > PUSH_AND_TURN_DIAL_TOLERANCE )
+    {
+      m_push_and_turning = true;
+    }
+  }
+
+  // if holding button AND turning dial - update secondary value
+  if( m_push_and_turning )
+  {
+    m_secondary_value = m_dial.value();
+  }
+  else
+  {
+    m_primary_value = m_dial.value();
   }
 }
 

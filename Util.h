@@ -72,10 +72,9 @@ inline constexpr int trunc_to_int( float v )
   return static_cast<int>( v );
 }
 
-template<typename T>
 inline constexpr int round_to_int( float v )
 {
-	return static_cast<T>( v + 0.5f );
+	return static_cast<int>( v + 0.5f );
 }
 
 /////////////////////////////////////////////////////
