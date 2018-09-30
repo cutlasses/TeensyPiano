@@ -19,3 +19,11 @@ Out jack - the output sound
 
 The code can quantise the input, currently only to C Major. You can enable and disable this with the QUANTISE_INPUT define in TeenyPiano.ino
 
+Here's a video of it in use
+
+For more info on how I wrote this, see http://www.cutlasses.co.uk/tech/piano-music/
+
+https://youtu.be/umf8ldmmhBE
+
+
+
