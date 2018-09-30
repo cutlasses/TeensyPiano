@@ -26,6 +26,6 @@ For more info on how I wrote this, see http://www.cutlasses.co.uk/tech/piano-mus
 https://youtu.be/umf8ldmmhBE
 
 <a href="http://www.youtube.com/watch?feature=player_embedded&vumf8ldmmhBE
-" target="_blank"><img src="http://img.youtube.com/vi/YOUTUBE_VIDEO_ID_HERE/0.jpg" 
+" target="_blank"><img src="http://img.youtube.com/vi/umf8ldmmhBE/0.jpg" 
 alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" /></a>
 
