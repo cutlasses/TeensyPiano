@@ -3,7 +3,7 @@ Piano based sample player
 
 This is an alternate firmware for the Radio Music/Chord Organ by Music Thing Modular. It plays a single piano sample at a pitch controlled by input CV. It has added reverb which you can control the mix of.
 
-##Controls:
+## Controls:
 
 ### Chord Organ
 Root jack - controls the pitch of the sound
