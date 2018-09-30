@@ -29,3 +29,5 @@ https://youtu.be/umf8ldmmhBE
 " target="_blank"><img src="http://img.youtube.com/vi/umf8ldmmhBE/0.jpg" 
 alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" /></a>
 
+## Binaries
+I've created some binary hex files which can be uploaded. These are currently UNTESTED. I've uploaded versions which don't overclock the Teensy, but this may cause audio drop outs. Please log an issue if you have problems.
