@@ -124,18 +124,8 @@ void SAMPLE_PLAYER_EFFECT::update()
         const int head_int = m_read_head.trunc_to_int32();
         if( head_int < m_sample_length )
         {
-          //Serial.print("head int:");
-          //Serial.println(head_int);
-          //block->data[i] = m_sample_data[head_int];
           block->data[i] = read_sample_cubic_fp();
-          //block->data[i] = read_sample_linear();
-          //block->data[i] = read_sample_linear_fp();
           m_read_head += m_speed;
-
-          //Serial.print("Speed:");
-          //Serial.print(m_speed.to_float());
-          //Serial.print(" Read head:");
-          //Serial.println(m_read_head.to_float());
         }
         else
         {

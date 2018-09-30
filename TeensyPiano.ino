@@ -6,6 +6,8 @@
 //#define SHOW_PERF
 //#define TEST_BOARD
 
+//#define QUANTISE_INPUT
+
 constexpr int         NUM_VOICES(4);
 
 constexpr int         NOTE_CV_PIN(A8);    // ROOT - on panel
@@ -157,7 +159,11 @@ void loop()
     Serial.println(semitone);
     */
 
+#ifdef QUANTISE_INPUT
     polyphonic_sample_player.play_at_quantised_pitch( semitone );
+#else
+    polyphonic_sample_player.play_at_pitch( semitone );
+#endif
   }
 #endif // !AUDIO_BOARD
 
