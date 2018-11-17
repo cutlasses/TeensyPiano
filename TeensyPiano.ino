@@ -6,7 +6,7 @@
 //#define SHOW_PERF
 //#define TEST_BOARD
 
-#define QUANTISE_INPUT
+//#define QUANTISE_INPUT
 
 constexpr int         NUM_VOICES(4);
 

@@ -111,8 +111,9 @@ void BUTTON::update( uint32_t time_ms )
 
   m_prev_is_active = m_is_active;
 
-  if( m_bounce.fallingEdge() )
+  if( m_bounce.risingEdge() )
   {
+    // BUTTON DOWN
     if( m_is_toggle )
     {
       m_is_active = !m_is_active;
@@ -125,8 +126,9 @@ void BUTTON::update( uint32_t time_ms )
     // time stamp when button is pressed
     m_down_time_stamp = time_ms;
   }
-  else if( m_bounce.risingEdge() )
+  else if( m_bounce.fallingEdge() )
   {
+    // BUTTON UP
     if( !m_is_toggle )
     {
       m_is_active = false;
